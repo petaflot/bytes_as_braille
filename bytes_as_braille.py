@@ -140,6 +140,9 @@ def bytes_as_braille(bytestr, encoding = 'utf-8', byteorder = 'big',
         inspired from https://github.com/sharkdp/hexyl, it is also possible to color bytes
 
         arguments:
+            bytestring: some bytes
+            encoding: try decoding the bytes first (default: 'utf-8') ; can be None to skip decoding
+            byteorder: as the name suggests ('big'/'little')
             show_ascii: show ascii-printable as such (no dots)
             colorblind: disable color output
             rainbow: set hue based on byte value ; if False, only color with colors dict
@@ -202,7 +205,7 @@ def bytes_as_braille(bytestr, encoding = 'utf-8', byteorder = 'big',
 
     try:
         return bytestr.decode(encoding)
-    except UnicodeDecodeError:
+    except (UnicodeDecodeError, TypeError):
         if byteorder == 'big':
             if colorblind:
                 return( ''.join([bytes_as_braille[b] for b in bytestr]) )

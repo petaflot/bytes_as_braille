@@ -16,7 +16,7 @@ The first thing I did was rename them as such (for big-endian representation):
 
 ![Big-endian numbering](/files/Braille8dotCellNumbering_bigendian.svg)
 
-Then came quite a bit of work re-ordering the cells based not on their unicode number, but their new byte value. With a little practice, it becomes instinctive to read the actual hex on base-10 value (it's basically like a binary clock).
+Then came quite a bit of work re-ordering the cells based not on their unicode number, but their new byte value. With a little practice, it becomes instinctive to read the actual hex or base-10 value (it's basically like a binary clock, so nothing new really). I obviously included a short script so you can have a binary clock in your term :-)
 
 ![Braille for bytes](/files/bytes_as_braille.png)
 
