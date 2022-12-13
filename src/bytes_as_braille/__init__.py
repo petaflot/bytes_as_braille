@@ -1,8 +1,12 @@
 from truecolor import fore_text, bold, COLORS
 from bytes_as_braille.palettes import PALETTES
 
+DEFAULT = False
+INTEGER = True
+BRAILLE = None
 
-def bytes_as_braille(bytestr, encoding = 'utf-8', byteorder = 'big', 
+
+def to_braille(bytestr, encoding = 'utf-8', byteorder = 'big', 
         show_ascii = False,
         colorblind = False,
         rainbow = True,
@@ -82,12 +86,12 @@ def bytes_as_braille(bytestr, encoding = 'utf-8', byteorder = 'big',
                 return fore_text(bytestr.decode(encoding), bold(COLORS[colors[None][0]]) )
             else:
                 return fore_text(bytestr.decode(encoding), COLORS[colors[None][0]] )
-        except ModuleNotFoundError:
-            try:
-                from termcolor import colored
-                return colred(bytestr.decode(encoding), *colors[None] )
-            except ModuleNotFoundError:
-                return bytestr.decode(encoding)
+        except (ModuleNotFoundError, TypeError):
+            #try:
+            #    from termcolor import colored
+            #    return colred(bytestr.decode(encoding), *colors[None] )
+            #except ModuleNotFoundError:
+            return bytestr.decode(encoding)
     except AttributeError:
         if bytestr is None:
             return None
@@ -109,9 +113,9 @@ def bytes_as_braille(bytestr, encoding = 'utf-8', byteorder = 'big',
             raise Exception("InvalidValueForByteOrder")
 
 def bprint(*args, **kwargs):
-    print( bytes_as_braille(*args, **kwargs))
+    print( to_braille(*args, **kwargs))
 
-def braille_to_bytes(braillestr, byteorder = 'big'):
+def from_braille(braillestr, byteorder = 'big'):
     """ converts braille-bytes back to bytes """
     # ordered, low values first (LSB if bottom-right, MSB is top-left, in columns)
     # makes more sense when BYTEORDER is set to 'big'
@@ -132,53 +136,88 @@ def braille_to_bytes(braillestr, byteorder = 'big'):
         '⡃': b'\xd0', '⣃': b'\xd1', '⡣': b'\xd2', '⣣': b'\xd3', '⡓': b'\xd4', '⣓': b'\xd5', '⡳': b'\xd6', '⣳': b'\xd7', '⡋': b'\xd8', '⣋': b'\xd9', '⡫': b'\xda', '⣫': b'\xdb', '⡛': b'\xdc', '⣛': b'\xdd', '⡻': b'\xde', '⣻': b'\xdf',
         '⠇': b'\xe0', '⢇': b'\xe1', '⠧': b'\xe2', '⢧': b'\xe3', '⠗': b'\xe4', '⢗': b'\xe5', '⠷': b'\xe6', '⢷': b'\xe7', '⠏': b'\xe8', '⢏': b'\xe9', '⠯': b'\xea', '⢯': b'\xeb', '⠟': b'\xec', '⢟': b'\xed', '⠿': b'\xee', '⢿': b'\xef',
         '⡇': b'\xf0', '⣇': b'\xf1', '⡧': b'\xf2', '⣧': b'\xf3', '⡗': b'\xf4', '⣗': b'\xf5', '⡷': b'\xf6', '⣷': b'\xf7', '⡏': b'\xf8', '⣏': b'\xf9', '⡯': b'\xfa', '⣯': b'\xfb', '⡟': b'\xfc', '⣟': b'\xfd', '⡿': b'\xfe', '⣿': b'\xff',
-        # ascii-printable chars
-        ' ': b'\x20', '!': b'\x21', '"': b'\x22', '#': b'\x23', '$': b'\x24', '%': b'\x25', '&': b'\x26', "'": b'\x27', '(': b'\x28', ')': b'\x29', '*': b'\x2A', '+': b'\x2B', ',': b'\x2C', '-': b'\x2D', '.': b'\x2E', '/': b'\x2F',
-        '0': b'\x30', '1': b'\x31', '2': b'\x32', '3': b'\x33', '4': b'\x34', '5': b'\x35', '6': b'\x36', '7': b'\x37', '8': b'\x38', '9': b'\x39', ':': b'\x3A', ';': b'\x3B', '<': b'\x3C', '=': b'\x3D', '>': b'\x3E', '?': b'\x3F',
-        '@': b'\x40', 'A': b'\x41', 'B': b'\x42', 'C': b'\x43', 'D': b'\x44', 'E': b'\x45', 'F': b'\x46', 'G': b'\x47', 'H': b'\x48', 'I': b'\x49', 'J': b'\x4A', 'K': b'\x4B', 'L': b'\x4C', 'M': b'\x4D', 'N': b'\x4E', 'O': b'\x4F',
-        'P': b'\x50', 'Q': b'\x51', 'R': b'\x52', 'S': b'\x53', 'T': b'\x54', 'U': b'\x55', 'V': b'\x56', 'W': b'\x57', 'X': b'\x58', 'Y': b'\x59', 'Z': b'\x5A', '[': b'\x5B', '\\': b'\x5C', ']': b'\x5D', '^': b'\x5E', '_': b'\x5F',
-        '`': b'\x60', 'a': b'\x61', 'b': b'\x62', 'c': b'\x63', 'd': b'\x64', 'e': b'\x65', 'f': b'\x66', 'g': b'\x67', 'h': b'\x68', 'i': b'\x69', 'j': b'\x6A', 'k': b'\x6B', 'l': b'\x6C', 'm': b'\x6D', 'n': b'\x6E', 'o': b'\x6F',
-        'p': b'\x70', 'q': b'\x71', 'r': b'\x72', 's': b'\x73', 't': b'\x74', 'u': b'\x75', 'v': b'\x76', 'w': b'\x77', 'x': b'\x78', 'y': b'\x79', 'z': b'\x7A', '{': b'\x7B', '|': b'\x7C', '}': b'\x7D', '~': b'\x7E',
     }
+    def trans(c):
+        try:
+            return braille_as_bytes[c]
+        except KeyError:
+            return bytes(c,'ascii')
+
     if byteorder == 'big':
-        return b''.join([braille_as_bytes[b] for b in braillestr])
+        return b''.join([trans(b) for b in braillestr])
     elif byteorder == 'little':
         return ''.join([braille_as_bytes[255-b] for b in braillestr])
     else:
         raise Exception("InvalidValueForByteOrder")
 
 from readchar import readkey
-def input(prompt = '>>> ', byteorder = 'big', encoding = 'utf-8', palette = PALETTES['white_on_grey']):
+def input(prompt = None, byteorder = 'big', encoding = 'utf-8', palette = PALETTES['white_on_grey'], mode = DEFAULT):
     """
-    interactive input function that automatically converts ints to bytes if possible
+    interactive input function that automatically converts ints to bytes if possible. _always_ return an encoded string.
 
     INABIAF: control characaters may be "hidden" in multibyte characters and interfere with the expected operation ;
         to input bytes on purpose, prefer HEX notation
 
-    TODO:
-        * accept Braille symbols as input
-        * mode toggle with EOF
+    :parameters:
+        mode:
+            DEFAULT:  normal mode (try to convert automatically, Braille symbols treated as byte values)
+            INTEGER:  integer input mode (don't try to convert ingeger to bytes, return string as-is*)
+            BRAILLE:  Braille input mode (don't treat Braille characters as bytes but as UTF symbols)
     """
     UID_MAX_LENGTH = 64
     def conv(s):
-        try:
-            b = (int(s,0)).to_bytes(UID_MAX_LENGTH, byteorder=byteorder).lstrip(b'\x00')
-        except ValueError:
+        if mode is False:   # default
+            try:
+                b = (int(s,0)).to_bytes(len(s), byteorder=byteorder).lstrip(b'\x00')
+            except ValueError:
+                b = from_braille(s)
+
+        elif mode is True:  # INTEGER
             b = bytes(s, 'utf-8')
+
+        elif mode is None:  # BRAILLE
+            try:
+                b = (int(s,0)).to_bytes(len(s), byteorder=byteorder).lstrip(b'\x00')
+            except ValueError:
+                b = bytes(s, 'utf-8')
+
         return b, len(b)
-        return 
+
+
+    if type(prompt) is str:
+        prompt = ( prompt ,'>⠊> ','>⠃> ')
+    elif prompt is None:
+        prompt = ('>⠝> ','>⠊> ','>⠃> ')
+    p = { DEFAULT: prompt[0], INTEGER: prompt[1], BRAILLE: prompt[2], }
 
     text = ''
     while True:
         b, l = conv(text)
-        print(f"{prompt}{fore_text(bytes_as_braille(b, show_ascii = True, rainbow = False, colors = palette))}{10*' '}", end='\r')
-        k = readkey()
-        if k == '\n':
-            print('\r'+' '*(l+len(prompt)), end='\r')
-            return b
-        elif k == '\x04':
-            raise EOFError
-        elif k == '\x7f':
-            text = text[:-1]
-        else:
-            text += k
+        print(f"{p[mode]}{fore_text(to_braille(b, show_ascii = True, rainbow = False, colors = palette))}{10*' '}", end='\r')
+        match readkey():
+            case '\n':
+                #print('\r'+' '*(l+len(prompt)), end='\r\n')
+                print('')
+                return b if len(b) else None
+            case '\x04':
+                print("\ninput mode: [s]td, [i]nt, [b]raille ; [enter] inserts EOL ; [d] inserts EOF ; [r]esets input ; ctrl+D again raises EOF")
+                match readkey():
+                    case 's':
+                        mode = DEFAULT
+                    case 'i':
+                        mode = INTEGER
+                    case 'b':
+                        mode = BRAILLE
+                    case '\n':
+                        text += '\n'
+                    case 'r':
+                        text = ''
+                    case 'd':
+                        text += '\x04'
+                    case '\x04':
+                        raise EOFError
+
+            case '\x7f':
+                text = text[:-1]
+            case k if k:
+                text += k
