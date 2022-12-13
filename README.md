@@ -1,4 +1,4 @@
-Since Python3, I have been working with byestrings that *sometimes* decode as ASCII or UTF strings ; the environment this lives in is "mixed", as some strings are expected to decode while some are are expected to not decode.
+Since Python3, I have been working with bytestrings that *sometimes* decode as ASCII or UTF strings ; the environment this lives in is "mixed", as some strings are expected to decode while some are are expected to not decode.
 
 Displaying those string as-is is not convenient, as quite a few unicode symbols will not render correctly : since I work with all sort of human languages these are frequent so I wrote a very short function that would try to decode my bytestring and return "__bytes__" if it would't decode. This, however, was not convenient because it made it impossible to distinguish undecodable bytestrings from one another, and information was lost (because I couldn't get the original bytestring again). Also, using the default Python mechanims to display those bytes was cumbersome, because each byte is displayed as 4 characters (such as \xc0), so the display quickly becomes quite messy and hard to read, even more so when ASCII-decodable characters are displayed as such.
 
@@ -30,4 +30,8 @@ f.close()
 
 Following suggestions on #python, the output can be colored at will so one can make specific bytes be very visible.
 
-In addition to being more compact, this makes it much easier to see patterns in blobs ; so if you like this way of displaying bytes and would like to skip the tedious symbol re-ordering, simply [get the script on github](https://github.com/petaflot/bytes_as_braille).
+In addition to being more compact, this makes it much easier to see patterns in blobs.
+
+# Input
+
+There is also an input method that will automatically convert integers to bytes if that is possible.

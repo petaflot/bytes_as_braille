@@ -1,0 +1,13 @@
+[build-system]
+requires = [
+	"setuptools>=45", 
+	"wheel", 
+	#"setuptools_scm>=6.2",
+]
+
+[tool.setuptools_scm]
+write_to = "src/bytes_as_braille/version.py"
+version_scheme = "post-release"
+
+[tool.black]
+target-version = ['py37']

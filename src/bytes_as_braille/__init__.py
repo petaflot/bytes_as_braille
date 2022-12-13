@@ -1,139 +1,12 @@
+from truecolor import fore_text, bold, COLORS
+from bytes_as_braille.palettes import PALETTES
+
+
 def bytes_as_braille(bytestr, encoding = 'utf-8', byteorder = 'big', 
-        show_ascii = True,
+        show_ascii = False,
         colorblind = False,
         rainbow = True,
-        colors = {
-            0x00: ('grey', ('bold')),   # usually shows as nothing... no dots!
-            0x01: ('red', ('bold',) ),
-            0x02: ('red', ('bold',) ),
-            0x03: ('red', ('bold',) ),
-            0x04: ('red', ('bold',) ),
-            0x05: ('red', ('bold',) ),
-            0x06: ('red', ('bold',) ),
-            0x07: ('red', ('bold',) ),
-            0x08: ('red', ('bold',) ),
-            0x09: ('red', ('bold',) ),
-            0x0a: ('red', ('bold',) ),
-            0x0b: ('red', ('bold',) ),
-            0x0c: ('red', ('bold',) ),
-            0x0d: ('red', ('bold',) ),
-            0x0e: ('red', ('bold',) ),
-            0x0f: ('red', ('bold',) ),
-            0x10: ('red', ('bold',) ),
-            0x11: ('red', ('bold',) ),
-            0x12: ('red', ('bold',) ),
-            0x13: ('red', ('bold',) ),
-            0x14: ('red', ('bold',) ),
-            0x15: ('red', ('bold',) ),
-            0x16: ('red', ('bold',) ),
-            0x17: ('red', ('bold',) ),
-            0x18: ('red', ('bold',) ),
-            0x19: ('red', ('bold',) ),
-            0x1a: ('red', ('bold',) ),
-            0x1b: ('red', ('bold',) ),
-            0x1c: ('red', ('bold',) ),
-            0x1d: ('red', ('bold',) ),
-            0x1e: ('red', ('bold',) ),
-            0x1f: ('red', ('bold',) ),
-            0x20: ('white', ),
-            0x21: ('white', ),
-            0x22: ('white', ),
-            0x23: ('white', ),
-            0x24: ('white', ),
-            0x25: ('white', ),
-            0x26: ('white', ),
-            0x27: ('white', ),
-            0x28: ('white', ),
-            0x29: ('white', ),
-            0x2a: ('white', ),
-            0x2b: ('white', ),
-            0x2c: ('white', ),
-            0x2d: ('white', ),
-            0x2e: ('white', ),
-            0x2f: ('white', ),
-            0x30: ('white', ),
-            0x31: ('white', ),
-            0x32: ('white', ),
-            0x33: ('white', ),
-            0x34: ('white', ),
-            0x35: ('white', ),
-            0x36: ('white', ),
-            0x37: ('white', ),
-            0x38: ('white', ),
-            0x39: ('white', ),
-            0x3a: ('white', ),
-            0x3b: ('white', ),
-            0x3c: ('white', ),
-            0x3d: ('white', ),
-            0x3e: ('white', ),
-            0x3f: ('white', ),
-            0x40: ('white', ),
-            0x41: ('white', ),
-            0x42: ('white', ),
-            0x43: ('white', ),
-            0x44: ('white', ),
-            0x45: ('white', ),
-            0x46: ('white', ),
-            0x47: ('white', ),
-            0x48: ('white', ),
-            0x49: ('white', ),
-            0x4a: ('white', ),
-            0x4b: ('white', ),
-            0x4c: ('white', ),
-            0x4d: ('white', ),
-            0x4e: ('white', ),
-            0x4f: ('white', ),
-            0x50: ('white', ),
-            0x51: ('white', ),
-            0x52: ('white', ),
-            0x53: ('white', ),
-            0x54: ('white', ),
-            0x55: ('white', ),
-            0x56: ('white', ),
-            0x57: ('white', ),
-            0x58: ('white', ),
-            0x59: ('white', ),
-            0x5a: ('white', ),
-            0x5b: ('white', ),
-            0x5c: ('white', ),
-            0x5d: ('white', ),
-            0x5e: ('white', ),
-            0x5f: ('white', ),
-            0x60: ('white', ),
-            0x61: ('white', ),
-            0x62: ('white', ),
-            0x63: ('white', ),
-            0x64: ('white', ),
-            0x65: ('white', ),
-            0x66: ('white', ),
-            0x67: ('white', ),
-            0x68: ('white', ),
-            0x69: ('white', ),
-            0x6a: ('white', ),
-            0x6b: ('white', ),
-            0x6c: ('white', ),
-            0x6d: ('white', ),
-            0x6e: ('white', ),
-            0x6f: ('white', ),
-            0x70: ('white', ),
-            0x71: ('white', ),
-            0x72: ('white', ),
-            0x73: ('white', ),
-            0x74: ('white', ),
-            0x75: ('white', ),
-            0x76: ('white', ),
-            0x77: ('white', ),
-            0x78: ('white', ),
-            0x79: ('white', ),
-            0x7a: ('white', ),
-            0x7b: ('white', ),
-            0x7c: ('white', ),
-            0x7d: ('white', ),
-            0x7e: ('white', ),
-            0x7f: ('red', ('bold',)),
-            # default color
-            None: ('green', ),
-        },
+        colors = None,
     ):
     """ tries to decode a bytestring in the preferred encoding ; if it doesn't, use Braille symbols 
 
@@ -170,7 +43,6 @@ def bytes_as_braille(bytestr, encoding = 'utf-8', byteorder = 'big',
 
     def color(b):
         try:
-            from truecolor import fore_text, bold, COLORS
             if show_ascii and ( b >= 32 and b<= 126):
                 try:
                     if 'bold' in colors[b][1]:
@@ -191,7 +63,7 @@ def bytes_as_braille(bytestr, encoding = 'utf-8', byteorder = 'big',
                         from colorsys import hsv_to_rgb
                         return fore_text( bytes_as_braille[b], [int(v*255) for v in hsv_to_rgb( b/255, 1, 1)] )
                 except ModuleNotFoundError:
-                    return fore_text( bytes_as_braille(b), COLORS[None] )
+                    return fore_text( bytes_as_braille[b], COLORS[None] )
 
         except ModuleNotFoundError:
             from termcolor import colored
@@ -204,8 +76,25 @@ def bytes_as_braille(bytestr, encoding = 'utf-8', byteorder = 'big',
                 return bytes_as_braille[b]
 
     try:
-        return bytestr.decode(encoding)
+        try:
+            from truecolor import fore_text, bold
+            if 'bold' in colors[None][1]:
+                return fore_text(bytestr.decode(encoding), bold(COLORS[colors[None][0]]) )
+            else:
+                return fore_text(bytestr.decode(encoding), COLORS[colors[None][0]] )
+        except ModuleNotFoundError:
+            try:
+                from termcolor import colored
+                return colred(bytestr.decode(encoding), *colors[None] )
+            except ModuleNotFoundError:
+                return bytestr.decode(encoding)
+    except AttributeError:
+        if bytestr is None:
+            return None
+        else:
+            raise
     except (UnicodeDecodeError, TypeError):
+        #raise
         if byteorder == 'big':
             if colorblind:
                 return( ''.join([bytes_as_braille[b] for b in bytestr]) )
@@ -258,3 +147,38 @@ def braille_to_bytes(braillestr, byteorder = 'big'):
     else:
         raise Exception("InvalidValueForByteOrder")
 
+from readchar import readkey
+def input(prompt = '>>> ', byteorder = 'big', encoding = 'utf-8', palette = PALETTES['white_on_grey']):
+    """
+    interactive input function that automatically converts ints to bytes if possible
+
+    INABIAF: control characaters may be "hidden" in multibyte characters and interfere with the expected operation ;
+        to input bytes on purpose, prefer HEX notation
+
+    TODO:
+        * accept Braille symbols as input
+        * mode toggle with EOF
+    """
+    UID_MAX_LENGTH = 64
+    def conv(s):
+        try:
+            b = (int(s,0)).to_bytes(UID_MAX_LENGTH, byteorder=byteorder).lstrip(b'\x00')
+        except ValueError:
+            b = bytes(s, 'utf-8')
+        return b, len(b)
+        return 
+
+    text = ''
+    while True:
+        b, l = conv(text)
+        print(f"{prompt}{fore_text(bytes_as_braille(b, show_ascii = True, rainbow = False, colors = palette))}{10*' '}", end='\r')
+        k = readkey()
+        if k == '\n':
+            print('\r'+' '*(l+len(prompt)), end='\r')
+            return b
+        elif k == '\x04':
+            raise EOFError
+        elif k == '\x7f':
+            text = text[:-1]
+        else:
+            text += k
