@@ -1,5 +1,6 @@
 from truecolor import fore_text, bold, COLORS
 from bytes_as_braille.palettes import PALETTES
+from os import get_terminal_size
 
 DEFAULT = False
 INTEGER = True
@@ -113,9 +114,15 @@ def to_braille(bytestr, encoding = 'utf-8', byteorder = 'big',
             raise Exception("InvalidValueForByteOrder")
 
 def bprint(*args, **kwargs):
-    print( to_braille(*args, **kwargs))
+    tba = {}
+    for arg in ('encoding', 'byteorder', 'show_ascii', 'rainbow', 'colors', 'colorblind'):
+        a = kwargs.pop(arg,None)
+        if a:
+            tba[arg] = a
+    print( to_braille(*args, **tba), **kwargs)
 
-def from_braille(braillestr, byteorder = 'big'):
+
+def from_braille(braillestr, byteorder = 'big', encoding = 'utf-8'):
     """ converts braille-bytes back to bytes """
     # ordered, low values first (LSB if bottom-right, MSB is top-left, in columns)
     # makes more sense when BYTEORDER is set to 'big'
@@ -141,7 +148,7 @@ def from_braille(braillestr, byteorder = 'big'):
         try:
             return braille_as_bytes[c]
         except KeyError:
-            return bytes(c,'ascii')
+            return bytes(c,encoding)
 
     if byteorder == 'big':
         return b''.join([trans(b) for b in braillestr])
@@ -161,7 +168,7 @@ def input(prompt = None, byteorder = 'big', encoding = 'utf-8', palette = PALETT
     :parameters:
         mode:
             DEFAULT:  normal mode (try to convert automatically, Braille symbols treated as byte values)
-            INTEGER:  integer input mode (don't try to convert ingeger to bytes, return string as-is*)
+            INTEGER:  integer input mode (don't try to convert integer to bytes, return string as-is*)
             BRAILLE:  Braille input mode (don't treat Braille characters as bytes but as UTF symbols)
     """
     UID_MAX_LENGTH = 64
@@ -169,8 +176,9 @@ def input(prompt = None, byteorder = 'big', encoding = 'utf-8', palette = PALETT
         if mode is False:   # default
             try:
                 b = (int(s,0)).to_bytes(len(s), byteorder=byteorder).lstrip(b'\x00')
-            except ValueError:
+            except (ValueError, OverflowError):
                 b = from_braille(s)
+            #except OverflowError:   # can't convert negative int to unsigned
 
         elif mode is True:  # INTEGER
             b = bytes(s, 'utf-8')
@@ -191,9 +199,15 @@ def input(prompt = None, byteorder = 'big', encoding = 'utf-8', palette = PALETT
     p = { DEFAULT: prompt[0], INTEGER: prompt[1], BRAILLE: prompt[2], }
 
     text = ''
+    disp = ''
+
+
     while True:
+        print('\r',(get_terminal_size().columns-1)*' ', end='\r')    # arbitrary-sized padding to erase excess text, deserves improvement TODO
+
         b, l = conv(text)
-        print(f"{p[mode]}{fore_text(to_braille(b, show_ascii = True, rainbow = False, colors = palette))}{10*' '}", end='\r')
+        disp = to_braille(b, show_ascii = True, rainbow = False, colors = palette)
+        print(f"{p[mode]}{fore_text(disp)}", end='', flush=True)
         match readkey():
             case '\n':
                 #print('\r'+' '*(l+len(prompt)), end='\r\n')
@@ -217,7 +231,25 @@ def input(prompt = None, byteorder = 'big', encoding = 'utf-8', palette = PALETT
                     case '\x04':
                         raise EOFError
 
-            case '\x7f':
+            case '\x7f':    # not sure which key '\x7f' is? thought it was backspace
                 text = text[:-1]
+            case '\x08':    # backspace
+                text = text[:-1]
+            case '\x1b[A':  # up
+                text += '↑'
+            case '\x1b[B':  # down
+                text += '↓'
+            case '\x1b[C':  # right
+                text += '→'
+            case '\x1b[D':  # left
+                text += '←'
+            case '\x1b[H':  # home
+                text += '↤'
+            case '\x1b[F':  # end
+                text =+ '↦'
+            case '\x1b[5~': # page up
+                text += '↥'
+            case '\x1b[6~': # page down
+                text += '↧'
             case k if k:
                 text += k

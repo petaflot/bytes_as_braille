@@ -14,7 +14,7 @@ setup(
         "Display/Input bytestrings as Braille cells "
         "(optional color support)."
     ),
-    long_description=Path("README.rst").read_text(),
+    long_description=Path("README.md").read_text(),
     classifiers=[
         "Development Status :: 1 - Prototype",
         "Environment :: Console",
