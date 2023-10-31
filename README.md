@@ -4,7 +4,7 @@ Displaying those string as-is is not convenient, as quite a few unicode symbols 
 
 It struck me that Braille symbols were a pretty workaround to this problem : although they are not ordered "logically" - actually they are, but based on historic grounds the first set comprises 6-dots symbols (U+2800 … U+283F), followed by the 8-dots symbols (U+2840 … T+28FF) and the order is well.. rather unconvenient to someone who is not familiar with the original 6-dot cell:
 
-![Braille 8-dot Cell Numbering](/files/Braille8dotCellNumbering.svg)
+![Braille 8-dot Cell Numbering](docs/_static/images/Braille8dotCellNumbering.svg)
 
 It is worth noting the following facts:
 
@@ -14,11 +14,11 @@ It is worth noting the following facts:
 
 The first thing I did was rename them as such (for big-endian representation):
 
-![Big-endian numbering](/files/Braille8dotCellNumbering_bigendian.svg)
+![Big-endian numbering](docs/_static/images/Braille8dotCellNumbering_bigendian.svg)
 
 Then came quite a bit of work re-ordering the cells based not on their unicode number, but their new byte value. With a little practice, it becomes instinctive to read the actual hex or base-10 value (it's basically like a binary clock, so nothing new really). I obviously included a short script so you can have a binary clock in your term :-)
 
-![Braille for bytes](/files/bytes_as_braille.png)
+![Braille for bytes](docs/_static/images/bytes_as_braille.png)
 
 Of course, this can be decoded:
 
