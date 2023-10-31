@@ -32,6 +32,8 @@ Following suggestions on #python, the output can be colored at will so one can m
 
 In addition to being more compact, this makes it much easier to see patterns in blobs.
 
+![Use cases](docs/_static/images/screenshot.png)
+
 # Input
 
 There is also an input method that will automatically convert integers to bytes if that is possible.
