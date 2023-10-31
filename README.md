@@ -37,3 +37,7 @@ In addition to being more compact, this makes it much easier to see patterns in 
 # Input
 
 There is also an input method that will automatically convert integers to bytes if that is possible.
+
+# Misc
+
+see also https://github.com/casey/dotify
