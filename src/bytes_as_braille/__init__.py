@@ -313,8 +313,7 @@ async def ainput(
     """
         same as input() above, only async
     """
-    #from bytes_as_braille.read_key_async import read_key
-    from aioconsole import ainput as read_key
+    from bytes_as_braille.read_key_async import read_key
 
     def conv(s):
         if mode is False:   # default
@@ -372,6 +371,8 @@ async def ainput(
                         text = ''
                     case 'd':
                         text += '\x04'
+                    case '\x03':
+                        raise KeyboardInterrupt
                     case '\x04':
                         raise EOFError
 
@@ -379,6 +380,8 @@ async def ainput(
                 text = text[:-1]
             case '\x08':    # backspace
                 text = text[:-1]
+            case '\x03':
+                raise KeyboardInterrupt
             case '\x1b[A':  # up
                 text += '↑'
             case '\x1b[B':  # down
