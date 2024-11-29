@@ -23,7 +23,7 @@ Then came quite a bit of work re-ordering the cells based not on their unicode n
 Of course, this can be decoded:
 
 ```
-f = open('/tmp/sample.bin','rb')
+f = open('/tmp/sample.bin','wb')
 f.write(braille_as_bytes('⠉⢤⢌⢕⢂⣍⢉⣮⣀⠭⡄⢏⢯⠤⢍⡔⢤⡕⡔⠽⠞⡚⣞⡺⠁⣇⣨⡈⣾⢁⠺⠜⢝⠐⣑⠚⠬⡈⢱⢙⠰⣢⣴⢌⠩⢇⢨⢢⣂⡢⣁⣚⣅⡖⠴⡡⠤⠦⠜⠽⠘⡴⡷⣴⠬⣞⢃⠚⠔⡹⣂⠡⣇⡅⡤⡁'))
 f.close()
 ```
@@ -36,7 +36,7 @@ In addition to being more compact, this makes it much easier to see patterns in 
 
 # Input
 
-There is also an input method that will automatically convert integers to bytes if that is possible.
+There is also an input method that will automatically convert integers to bytes if that is possible ; it exists in two variants (standard and async).
 
 # Misc
 

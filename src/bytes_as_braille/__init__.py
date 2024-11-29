@@ -1,4 +1,37 @@
-from truecolor import fore_text, bold, COLORS
+# vim: ts=4 number et
+
+from sys import stderr
+try:
+    from truecolor import fore_text, bold, COLORS
+    print("Using truecolor", file=stderr)
+except (ImportError, RuntimeError) as e:
+    if str(e) == "Not a true color terminal":
+        try:
+            import termcolor
+            print("Not a true color terminal... using 'termcolor'", file=stderr)
+            def fore_text(txt, color=None):
+                """
+                    wrapper TODO color
+                """
+                return termcolor.colored(txt)
+            def bold(txt):
+                """
+                    TODO bold text
+                """
+                return txt
+        except ImportError:
+            def fore_text(txt, color=None):
+                """
+                    wrapper TODO color
+                """
+                return txt
+            def bold(txt):
+                """
+                    TODO bold text
+                """
+                return txt
+            print("No colors will be used", file=stderr)
+        
 from bytes_as_braille.palettes import PALETTES
 from os import get_terminal_size
 
@@ -58,6 +91,8 @@ def to_braille(bytestr, encoding = 'utf-8', byteorder = 'big',
                     return fore_text( chr(b), COLORS[colors[b][0]] )
                 except (KeyError, TypeError):
                     return chr(b)
+                except NameError:
+                    return bytes_as_braille[b]
             else:
                 try:
                     return fore_text( bytes_as_braille[b], COLORS[colors[b][0]] )
@@ -69,6 +104,8 @@ def to_braille(bytestr, encoding = 'utf-8', byteorder = 'big',
                         return fore_text( bytes_as_braille[b], [int(v*255) for v in hsv_to_rgb( b/255, 1, 1)] )
                 except ModuleNotFoundError:
                     return fore_text( bytes_as_braille[b], COLORS[None] )
+                except NameError:
+                    return bytes_as_braille[b]
 
         except ModuleNotFoundError:
             from termcolor import colored
@@ -82,17 +119,21 @@ def to_braille(bytestr, encoding = 'utf-8', byteorder = 'big',
 
     try:
         try:
-            from truecolor import fore_text, bold
+            # TODO use wrapper, see lines 2-15
+            #from truecolor import fore_text, bold
             if 'bold' in colors[None][1]:
                 return fore_text(bytestr.decode(encoding), bold(COLORS[colors[None][0]]) )
             else:
                 return fore_text(bytestr.decode(encoding), COLORS[colors[None][0]] )
-        except (ModuleNotFoundError, TypeError):
+        except (ModuleNotFoundError, TypeError, NameError):
             #try:
             #    from termcolor import colored
             #    return colred(bytestr.decode(encoding), *colors[None] )
             #except ModuleNotFoundError:
             return bytestr.decode(encoding)
+        except RuntimeError as e:
+            if str(e) == "Not a true color terminal":
+                pass
     except AttributeError:
         if bytestr is None:
             return None
@@ -157,8 +198,13 @@ def from_braille(braillestr, byteorder = 'big', encoding = 'utf-8'):
     else:
         raise Exception("InvalidValueForByteOrder")
 
-from readchar import readkey
-def input(prompt = None, byteorder = 'big', encoding = 'utf-8', palette = PALETTES['white_on_grey'], mode = DEFAULT):
+def input(
+        prompt = None,
+        byteorder = 'big',
+        encoding = 'utf-8',
+        palette = PALETTES['white_on_grey'],
+        mode = DEFAULT, UID_MAX_LENGTH = 64
+    ):
     """
     interactive input function that automatically converts ints to bytes if possible. _always_ return an encoded string.
 
@@ -171,7 +217,8 @@ def input(prompt = None, byteorder = 'big', encoding = 'utf-8', palette = PALETT
             INTEGER:  integer input mode (don't try to convert integer to bytes, return string as-is*)
             BRAILLE:  Braille input mode (don't treat Braille characters as bytes but as UTF symbols)
     """
-    UID_MAX_LENGTH = 64
+    from readchar import readkey
+
     def conv(s):
         if mode is False:   # default
             try:
@@ -203,19 +250,114 @@ def input(prompt = None, byteorder = 'big', encoding = 'utf-8', palette = PALETT
 
 
     while True:
-        print('\r',(get_terminal_size().columns-1)*' ', end='\r')    # arbitrary-sized padding to erase excess text, deserves improvement TODO
+        print('\r',(get_terminal_size().columns-1)*' ', end='\r')    # arbitrary-sized padding to erase excess text, TODO deserves improvement TODO
 
         b, l = conv(text)
         disp = to_braille(b, show_ascii = True, rainbow = False, colors = palette)
         print(f"{p[mode]}{fore_text(disp)}", end='', flush=True)
         match readkey():
-            case '\n':
+            case x if x in ('\n','\r'):
                 #print('\r'+' '*(l+len(prompt)), end='\r\n')
                 print('')
                 return b if len(b) else None
             case '\x04':
                 print("\ninput mode: [s]td, [i]nt, [b]raille ; [enter] inserts EOL ; [d] inserts EOF ; [r]esets input ; ctrl+D again raises EOF")
                 match readkey():
+                    case 's':
+                        mode = DEFAULT
+                    case 'i':
+                        mode = INTEGER
+                    case 'b':
+                        mode = BRAILLE
+                    case '\n':
+                        text += '\n'
+                    case 'r':
+                        text = ''
+                    case 'd':
+                        text += '\x04'
+                    case '\x04':
+                        raise EOFError
+
+            case '\x7f':    # not sure which key '\x7f' is? thought it was backspace
+                text = text[:-1]
+            case '\x08':    # backspace
+                text = text[:-1]
+            case '\x1b[A':  # up
+                text += '↑'
+            case '\x1b[B':  # down
+                text += '↓'
+            case '\x1b[C':  # right
+                text += '→'
+            case '\x1b[D':  # left
+                text += '←'
+            case '\x1b[H':  # home
+                text += '↤'
+            case '\x1b[F':  # end
+                text =+ '↦'
+            case '\x1b[5~': # page up
+                text += '↥'
+            case '\x1b[6~': # page down
+                text += '↧'
+            case k if k:
+                text += k
+
+async def ainput(
+        prompt = None,
+        byteorder = 'big',
+        encoding = 'utf-8',
+        palette = PALETTES['white_on_grey'],
+        mode = DEFAULT, UID_MAX_LENGTH = 64
+    ):
+    """
+        same as input() above, only async
+    """
+    #from bytes_as_braille.read_key_async import read_key
+    from aioconsole import ainput as read_key
+
+    def conv(s):
+        if mode is False:   # default
+            try:
+                b = (int(s,0)).to_bytes(len(s), byteorder=byteorder).lstrip(b'\x00')
+            except (ValueError, OverflowError):
+                b = from_braille(s)
+            #except OverflowError:   # can't convert negative int to unsigned
+
+        elif mode is True:  # INTEGER
+            b = bytes(s, 'utf-8')
+
+        elif mode is None:  # BRAILLE
+            try:
+                b = (int(s,0)).to_bytes(len(s), byteorder=byteorder).lstrip(b'\x00')
+            except ValueError:
+                b = bytes(s, 'utf-8')
+
+        return b, len(b)
+
+
+    if type(prompt) is str:
+        prompt = ( prompt ,'>⠊> ','>⠃> ')
+    elif prompt is None:
+        prompt = ('>⠝> ','>⠊> ','>⠃> ')
+    p = { DEFAULT: prompt[0], INTEGER: prompt[1], BRAILLE: prompt[2], }
+
+    text = ''
+    disp = ''
+
+
+    while True:
+        print('\r',(get_terminal_size().columns-1)*' ', end='\r')    # arbitrary-sized padding to erase excess text, TODO deserves improvement TODO
+
+        b, l = conv(text)
+        disp = to_braille(b, show_ascii = True, rainbow = False, colors = palette)
+        print(f"{p[mode]}{fore_text(disp)}", end='', flush=True)
+        match await read_key():
+            case x if x in ('\n','\r'):
+                #print('\r'+' '*(l+len(prompt)), end='\r\n')
+                print('')
+                return b if len(b) else None
+            case '\x04':
+                print("\ninput mode: [s]td, [i]nt, [b]raille ; [enter] inserts EOL ; [d] inserts EOF ; [r]esets input ; ctrl+D again raises EOF")
+                match await read_key():
                     case 's':
                         mode = DEFAULT
                     case 'i':
