@@ -20,11 +20,18 @@ Then came quite a bit of work re-ordering the cells based not on their unicode n
 
 ![Braille for bytes](docs/_static/images/bytes_as_braille.png)
 
-Of course, this can be decoded:
+```
+>>> import bytes_as_braille as bab
+>>> bab.to_braille(b'Hello\x00\xcf\xe6\xb3\xed\xf0\x1f\x00World', show_ascii=True)
+Hello⠀⢻⠷⣥⢟⡇⣸⠀World
+```
+
+Of course, decoding is also possible:
 
 ```
-with open('/tmp/sample.bin','wb') as f:
-    f.write(braille_as_bytes('⠉⢤⢌⢕⢂⣍⢉⣮⣀⠭⡄⢏⢯⠤⢍⡔⢤⡕⡔⠽⠞⡚⣞⡺⠁⣇⣨⡈⣾⢁⠺⠜⢝⠐⣑⠚⠬⡈⢱⢙⠰⣢⣴⢌⠩⢇⢨⢢⣂⡢⣁⣚⣅⡖⠴⡡⠤⠦⠜⠽⠘⡴⡷⣴⠬⣞⢃⠚⠔⡹⣂⠡⣇⡅⡤⡁'))
+>>> import bytes_as_braille as bab
+>>> with open('/tmp/sample.bin','wb') as f:
+>>>     f.write(bab.from_braille('⠉⢤⢌⢕⢂⣍⢉⣮⣀⠭⡄⢏⢯⠤⢍⡔⢤⡕⡔⠽⠞⡚⣞⡺⠁⣇⣨⡈⣾⢁⠺⠜⢝⠐⣑⠚⠬⡈⢱⢙⠰⣢⣴⢌⠩⢇⢨⢢⣂⡢⣁⣚⣅⡖⠴⡡⠤⠦⠜⠽⠘⡴⡷⣴⠬⣞⢃⠚⠔⡹⣂⠡⣇⡅⡤⡁'))
 ```
 
 Following suggestions on #python, the output can be colored at will so one can make specific bytes be very visible ; it also makes it easier to distinguish one byte from the sourrounding ones.

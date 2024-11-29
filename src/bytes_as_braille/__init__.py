@@ -54,7 +54,7 @@ def to_braille(bytestr, encoding = 'utf-8', byteorder = 'big',
             bytestring: some bytes
             encoding: try decoding the bytes first (default: 'utf-8') ; can be None to skip decoding
             byteorder: as the name suggests ('big'/'little')
-            show_ascii: show ascii-printable as such (no dots)
+            show_ascii: show ascii-printable when possible (no dots)
             colorblind: disable color output
             rainbow: set hue based on byte value ; if False, only color with colors dict
             colors: a dict that specifies how to color each byte, ie. {0xff: ('red', ('bold', ), }
