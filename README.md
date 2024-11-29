@@ -23,12 +23,11 @@ Then came quite a bit of work re-ordering the cells based not on their unicode n
 Of course, this can be decoded:
 
 ```
-f = open('/tmp/sample.bin','wb')
-f.write(braille_as_bytes('⠉⢤⢌⢕⢂⣍⢉⣮⣀⠭⡄⢏⢯⠤⢍⡔⢤⡕⡔⠽⠞⡚⣞⡺⠁⣇⣨⡈⣾⢁⠺⠜⢝⠐⣑⠚⠬⡈⢱⢙⠰⣢⣴⢌⠩⢇⢨⢢⣂⡢⣁⣚⣅⡖⠴⡡⠤⠦⠜⠽⠘⡴⡷⣴⠬⣞⢃⠚⠔⡹⣂⠡⣇⡅⡤⡁'))
-f.close()
+with open('/tmp/sample.bin','wb') as f:
+    f.write(braille_as_bytes('⠉⢤⢌⢕⢂⣍⢉⣮⣀⠭⡄⢏⢯⠤⢍⡔⢤⡕⡔⠽⠞⡚⣞⡺⠁⣇⣨⡈⣾⢁⠺⠜⢝⠐⣑⠚⠬⡈⢱⢙⠰⣢⣴⢌⠩⢇⢨⢢⣂⡢⣁⣚⣅⡖⠴⡡⠤⠦⠜⠽⠘⡴⡷⣴⠬⣞⢃⠚⠔⡹⣂⠡⣇⡅⡤⡁'))
 ```
 
-Following suggestions on #python, the output can be colored at will so one can make specific bytes be very visible.
+Following suggestions on #python, the output can be colored at will so one can make specific bytes be very visible ; it also makes it easier to distinguish one byte from the sourrounding ones.
 
 In addition to being more compact, this makes it much easier to see patterns in blobs ; specifically, bitmap images can be printed on a term easily :-)
 
@@ -36,7 +35,7 @@ In addition to being more compact, this makes it much easier to see patterns in 
 
 # Input
 
-There is also an input method that will automatically convert integers to bytes if that is possible ; it exists in two variants (standard and async).
+There is also an input method that will automatically convert integers to bytes if that is possible ; it exists in two variants (async and not async). It features a "menu", accessible with Ctrl+D, to set the input mode (one of three available, type `help(bytes_as_braille.input)` for info).
 
 # Misc
 

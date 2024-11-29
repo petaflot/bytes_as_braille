@@ -208,6 +208,8 @@ def input(
     """
     interactive input function that automatically converts ints to bytes if possible. _always_ return an encoded string.
 
+    for async version, use ainput()
+
     INABIAF: control characaters may be "hidden" in multibyte characters and interfere with the expected operation ;
         to input bytes on purpose, prefer HEX notation
 
