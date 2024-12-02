@@ -10,4 +10,4 @@ write_to = "src/bytes_as_braille/version.py"
 version_scheme = "post-release"
 
 [tool.black]
-target-version = ['py37']
+target-version = ['py311']
