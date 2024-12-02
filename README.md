@@ -39,7 +39,7 @@ Following suggestions on #python, the output can be colored at will so one can m
 
 In addition to being more compact, this makes it much easier to see patterns in blobs ; specifically, bitmap images can be printed on a term easily :-)
 
-![Use cases](docs/_static/images/screenshot.png)
+![Use cases](doc/_static/images/screenshot.png)
 
 # Input
 
