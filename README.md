@@ -20,18 +20,17 @@ Then came quite a bit of work re-ordering the cells based not on their unicode n
 
 ![Braille for bytes](doc/_static/images/bytes_as_braille.png)
 
-Of course, this can be decoded:
+Encoding unfriendly byte sequences is easy:
 
 ```
 >>> import bytes_as_braille as bab
->>> bab.to_braille(b'Hello\x00\xc4\x84\x0e\x0e\xa4\x00World\x00\x4e\xa4\xe4\x0e\x8c', show_ascii=True)
-'Hello⠀⠓⠑⠸⠸⠕⠀World⠀N⠕⠗⠸⢙'
+>>> bab.to_braille(b'\x48\x65\x6c\x6c\x6f\x00\xc4\x84\x0e\x0e\xa4\x00\x57\x6f\x72\x6c\x64\x00\x4e\xa4\xe4\x0e\x8c\x21',colorblind=True, show_ascii=True)
+'Hello⠀⠓⠑⠸⠸⠕⠀World⠀N⠕⠗⠸⢙!'
 ```
 
 Of course, decoding is also possible:
 
 ```
->>> import bytes_as_braille as bab
 >>> with open('/tmp/sample.bin','wb') as f:
 >>>     f.write(bab.from_braille('⠉⢤⢌⢕⢂⣍⢉⣮⣀⠭⡄⢏⢯⠤⢍⡔⢤⡕⡔⠽⠞⡚⣞⡺⠁⣇⣨⡈⣾⢁⠺⠜⢝⠐⣑⠚⠬⡈⢱⢙⠰⣢⣴⢌⠩⢇⢨⢢⣂⡢⣁⣚⣅⡖⠴⡡⠤⠦⠜⠽⠘⡴⡷⣴⠬⣞⢃⠚⠔⡹⣂⠡⣇⡅⡤⡁'))
 ```
