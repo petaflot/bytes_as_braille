@@ -23,24 +23,39 @@ Then came quite a bit of work re-ordering the cells based not on their unicode n
 Of course, this can be decoded:
 
 ```
-f = open('/tmp/sample.bin','rb')
-f.write(braille_as_bytes('⠉⢤⢌⢕⢂⣍⢉⣮⣀⠭⡄⢏⢯⠤⢍⡔⢤⡕⡔⠽⠞⡚⣞⡺⠁⣇⣨⡈⣾⢁⠺⠜⢝⠐⣑⠚⠬⡈⢱⢙⠰⣢⣴⢌⠩⢇⢨⢢⣂⡢⣁⣚⣅⡖⠴⡡⠤⠦⠜⠽⠘⡴⡷⣴⠬⣞⢃⠚⠔⡹⣂⠡⣇⡅⡤⡁'))
-f.close()
+>>> import bytes_as_braille as bab
+>>> bab.to_braille(b'Hello\x00\xc4\x84\x0e\x0e\xa4\x00World\x00\x4e\xa4\xe4\x0e\x8c', show_ascii=True)
+'Hello⠀⠓⠑⠸⠸⠕⠀World⠀N⠕⠗⠸⢙'
 ```
 
-Following suggestions on #python, the output can be colored at will so one can make specific bytes be very visible.
+Of course, decoding is also possible:
 
-In addition to being more compact, this makes it much easier to see patterns in blobs.
+```
+>>> import bytes_as_braille as bab
+>>> with open('/tmp/sample.bin','wb') as f:
+>>>     f.write(bab.from_braille('⠉⢤⢌⢕⢂⣍⢉⣮⣀⠭⡄⢏⢯⠤⢍⡔⢤⡕⡔⠽⠞⡚⣞⡺⠁⣇⣨⡈⣾⢁⠺⠜⢝⠐⣑⠚⠬⡈⢱⢙⠰⣢⣴⢌⠩⢇⢨⢢⣂⡢⣁⣚⣅⡖⠴⡡⠤⠦⠜⠽⠘⡴⡷⣴⠬⣞⢃⠚⠔⡹⣂⠡⣇⡅⡤⡁'))
+```
+
+Following suggestions on #python, the output can be colored at will so one can make specific bytes be very visible ; it also makes it easier to distinguish one byte from the sourrounding ones.
+
+In addition to being more compact, this makes it much easier to see patterns in blobs ; specifically, bitmap images can be printed on a term easily :-)
+
+![Use cases](docs/_static/images/screenshot.png)
 
 # Input
 
-There is also an input method that will automatically convert integers to bytes if that is possible.
+There is also an input method that will automatically convert integers to bytes if that is possible ; it exists in two variants (async and not async). It features a "menu", accessible with Ctrl+D, to set the input mode (one of three available, type `help(bytes_as_braille.input)` for info).
 
 # Install
 
-Running
+`pip install -r requirements.txt` should suffice.
 
-	pip install truecolor
-	pip install readchar
+For colored output, which of `truecolor` or `termcolor` is used will depend on your terminal.
 
-in a shell (preferably a venv) shold suffice
+Notes:
+* support for `termcolor` is still WIP
+* lower versions might work, they are just the ones installed on my machine ATM ; please let me know if you have any success
+
+# Misc
+
+see also https://github.com/casey/dotify (not *quite* the same as current project)
